@@ -2,17 +2,19 @@
  * @author Lorenzo Cadamuro / http://lorenzocadamuro.com
  */
 
-import {mat4} from 'gl-matrix'
-import stats from '~js/helpers/stats'
-import gui from '~js/helpers/gui'
-import Texture from '~js/helpers/Texture'
-import {regl, play} from '~js/renderer'
-import camera from '~js/camera'
-import cube, {Types as CubeTypes, Faces as CubeFaces, Masks as CubeMasks} from '~js/components/cube'
-import content, {Types as ContentTypes} from '~js/components/content'
-import reflection from '~js/components/reflection'
+import { mat4 } from 'gl-matrix'
+import stats from './helpers/stats'
+import gui from './helpers/gui'
+import Texture from './helpers/Texture'
+import { regl, play } from './renderer'
+import camera from './camera'
+import cube, { Types as CubeTypes, Masks as CubeMasks } from './components/cube'
+import content, { Types as ContentTypes } from './components/content'
+import reflection from './components/reflection'
 
-import '~css/main.css'
+import '../css/main.css'
+import { FaceOrientationType, FramebufferCube, Framebuffer2D, Framebuffer } from 'regl'
+
 
 const CONFIG = {
   cameraX: 0,
@@ -25,7 +27,7 @@ const CONFIG = {
   velocity: 0.009,
 }
 
-gui.get((gui) => {
+gui.get((gui: dat.GUI) => {
   const folder = gui.addFolder('Main')
 
   folder.add(CONFIG, 'cameraX', -20, 20).step(0.1)
@@ -41,10 +43,10 @@ gui.get((gui) => {
 /**
  * Fbos
  */
-const displacementFbo = regl.framebuffer()
-const maskFbo = regl.framebuffer()
-const contentFbo = regl.framebuffer()
-const reflectionFbo = regl.framebufferCube(1024)
+const displacementFbo:Framebuffer2D = regl.framebuffer()
+const maskFbo:Framebuffer2D = regl.framebuffer()
+const contentFbo:Framebuffer2D = regl.framebuffer()
+const reflectionFbo:FramebufferCube = regl.framebufferCube(1024)
 
 /**
  * Textures
@@ -77,10 +79,10 @@ const textures = [
   },
 ]
 
-const animate = ({viewportWidth, viewportHeight, tick}) => {
+const animate = ({ viewportWidth, viewportHeight, tick }) => {
   stats.begin()
 
-  const {rotation, rotateX, rotateY, rotateZ, velocity, cameraX, cameraY, cameraZ} = CONFIG
+  const { rotation, rotateX, rotateY, rotateZ, velocity, cameraX, cameraY, cameraZ } = CONFIG
 
   /**
    * Resize Fbos
@@ -101,18 +103,12 @@ const animate = ({viewportWidth, viewportHeight, tick}) => {
   /**
    * Camera config
    */
-  const cameraConfig = {
-    eye: [cameraX, cameraY, cameraZ],
-    target: [0, 0, 0],
-  }
+  const cameraConfig = { eye: [cameraX, cameraY, cameraZ], target: [0, 0, 0], }
 
   /**
    * Clear context
    */
-  regl.clear({
-    color: [0, 0, 0, 0],
-    depth: 1,
-  })
+  regl.clear({ color: [0, 0, 0, 0], depth: 1, })
 
   camera(cameraConfig, () => {
     /**
@@ -120,41 +116,22 @@ const animate = ({viewportWidth, viewportHeight, tick}) => {
      * Render the mask into the displacementFbo
      */
     cube([
-      {
-        fbo: displacementFbo,
-        cullFace: CubeFaces.BACK,
-        typeId: CubeTypes.DISPLACEMENT,
-        matrix: rotationMatrix,
-      },
-      {
-        fbo: maskFbo,
-        cullFace: CubeFaces.BACK,
-        typeId: CubeTypes.MASK,
-        matrix: rotationMatrix,
-      },
+      { fbo: displacementFbo, cullFace: <FaceOrientationType>'back', typeId: CubeTypes.DISPLACEMENT, matrix: rotationMatrix, },
+      { fbo: maskFbo, cullFace: <FaceOrientationType>'back', typeId: CubeTypes.MASK, matrix: rotationMatrix, },
     ])
 
     /**
      * Render the content to print in the cube
      */
     contentFbo.use(() => {
-      content({
-        textures,
-        displacement: displacementFbo,
-        mask: maskFbo,
-      })
+      content({ textures, displacement: displacementFbo, mask: maskFbo, })
     })
   })
 
   /**
    * Render the content reflection
    */
-  reflection({
-    reflectionFbo,
-    cameraConfig,
-    rotationMatrix,
-    texture: contentFbo
-  })
+  reflection({ reflectionFbo, cameraConfig, rotationMatrix, texture: contentFbo })
 
   camera(cameraConfig, () => {
     /**
@@ -162,18 +139,8 @@ const animate = ({viewportWidth, viewportHeight, tick}) => {
      * Render the front face of the cube
      */
     cube([
-      {
-        cullFace: CubeFaces.FRONT,
-        typeId: CubeTypes.FINAL,
-        reflection: reflectionFbo,
-        matrix: rotationMatrix,
-      },
-      {
-        cullFace: CubeFaces.BACK,
-        typeId: CubeTypes.FINAL,
-        texture: contentFbo,
-        matrix: rotationMatrix,
-      },
+      { cullFace: <FaceOrientationType>'front', typeId: CubeTypes.FINAL, reflection: reflectionFbo, matrix: rotationMatrix, },
+      { cullFace: <FaceOrientationType>'back', typeId: CubeTypes.FINAL, texture: contentFbo, matrix: rotationMatrix, },
     ])
   })
 

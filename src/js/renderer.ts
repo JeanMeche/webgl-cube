@@ -2,10 +2,10 @@
  * @author Lorenzo Cadamuro / http://lorenzocadamuro.com
  */
 
-import Regl from 'regl'
+import * as Regl from 'regl'
 
 export const regl = Regl({
-  container: document.querySelector('.content'),
+  container: <HTMLElement>document.querySelector('.content'),
   attributes: {
     antialias: true,
     alpha: false,

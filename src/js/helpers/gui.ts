@@ -1,16 +1,17 @@
 /**
  * @author Lorenzo Cadamuro / http://lorenzocadamuro.com
  */
+///<reference path="../index.d.ts" />
 
 import * as dat from 'dat.gui'
-import queryString from 'query-string'
+import * as queryString from 'query-string'
 
-let gui
+let gui: dat.GUI;
 
 const init = () => {
   if (!gui) {
-    gui = new dat.GUI({width: 300})
-  }
+    gui = new dat.GUI({ width: 300 })
+  } 
 }
 
 setTimeout(() => {
@@ -23,7 +24,7 @@ setTimeout(() => {
 })
 
 export default {
-  get: (callback) => {
+  get: (callback: (gui: dat.GUI) => void) => {
     setTimeout(() => {
       if (gui) {
         callback(gui)

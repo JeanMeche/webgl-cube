@@ -7,7 +7,7 @@ export default (regl, src) => {
 
   const image = new Image()
 
-  image.src = require(`~assets/${src}`)
+  image.src = require(`../../assets/${src}`)
 
   image.onload = function() {
     texture({

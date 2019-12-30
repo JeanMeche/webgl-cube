@@ -1,0 +1,27 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es6",
+    "alwaysStrict": true,
+    "baseUrl": "./src/js",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "outDir": "./src/dist",
+    "sourceMap": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vert",
+    "src/**/*.frag",
+  ],
+  "exclude": [
+    "src/dist/*/**"
+  ],
+  "paths": {
+    "@js/*": ["src/js/*"],
+    "@glsl/*": ["src/js/*"],
+    "@css/*": ["src/css/*"],
+    "@assets/*": ["src/assets/*"],
+}
+}

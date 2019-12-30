@@ -2,12 +2,13 @@
  * @author Lorenzo Cadamuro / http://lorenzocadamuro.com
  */
 
-import {mat4} from 'gl-matrix'
-import {regl} from '~js/renderer'
-import gui from '~js/helpers/gui'
-import {positions, uv, elements} from './config'
+import { mat4 } from 'gl-matrix'
+import { regl } from '../../../renderer'
+import gui from '../../../helpers/gui'
+import { positions, uv, elements } from './config'
 import frag from './shader.frag'
 import vert from './shader.vert'
+import { DefaultContext } from 'regl'
 
 const CONFIG = {
   depthOpacity: 0.25
@@ -19,11 +20,11 @@ gui.get((gui) => {
   folder.add(CONFIG, 'depthOpacity', 0, 1).step(0.01)
 })
 
-export default regl({
+export default regl<{}, {}, {}, OwnContext>({
   frag,
   vert,
   context: {
-    world: ({viewportWidth, viewportHeight}, {cameraConfig: mainCameraConfig, fov}) => {
+    world: ({ viewportWidth, viewportHeight }, { cameraConfig: mainCameraConfig, fov }) => {
       const fovy = (fov * Math.PI) / 180
       const aspect = viewportWidth / viewportHeight
       const cameraHeight = Math.tan(fovy / 2) * mainCameraConfig.eye[2]
@@ -36,7 +37,7 @@ export default regl({
       return world
     },
     depthOpacity: () => {
-      const {depthOpacity} = CONFIG
+      const { depthOpacity } = CONFIG
 
       return depthOpacity
     }
@@ -46,9 +47,9 @@ export default regl({
     a_uv: uv,
   },
   uniforms: {
-    u_world: regl.context('world'),
-    u_texture: regl.prop('texture'),
-    u_depthOpacity: regl.context('depthOpacity'),
+    u_world: regl.context<OwnContext & DefaultContext, 'world'>('world'),
+    u_texture: regl.prop<Props, 'texture'>('texture'),
+    u_depthOpacity: regl.context<OwnContext & DefaultContext, 'depthOpacity'>('depthOpacity'),
   },
   depth: {
     enable: true,
@@ -72,3 +73,13 @@ export default regl({
   elements,
   count: 6,
 })
+
+interface Props {
+  texture: any,
+}
+
+interface OwnContext {
+  world: any,
+  depthOpacity: any
+
+}
